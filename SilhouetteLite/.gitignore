@@ -1,0 +1,13 @@
+data/*
+!data/README.md
+defense/results/*
+attack/results/*
+webapp/uploads/*
+!webapp/uploads/.gitkeep
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.pkl
+*.joblib
+.DS_Store
