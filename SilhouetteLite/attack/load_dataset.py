@@ -1,3 +1,4 @@
+import pickle
 from pathlib import Path
 
 import numpy as np
@@ -10,24 +11,58 @@ def _clean(trace):
     return [int(c) for c in trace if c == 1 or c == -1]
 
 
+def _label(value):
+    try:
+        return f"site_{int(value):02d}"
+    except (ValueError, TypeError):
+        return str(value)
+
+
+def _unpickle(path):
+    with open(path, "rb") as f:
+        try:
+            return pickle.load(f, encoding="latin1")
+        except TypeError:
+            return pickle.load(f)
+
+
+def _load_npy(data_dir):
+    x_npy, y_npy = data_dir / "X.npy", data_dir / "y.npy"
+    if x_npy.exists() and y_npy.exists():
+        return np.load(x_npy, allow_pickle=True), np.load(y_npy, allow_pickle=True)
+    return None
+
+
+def _load_npz(data_dir):
+    for npz in data_dir.glob("*.npz"):
+        bundle = np.load(npz, allow_pickle=True)
+        if "X" in bundle and "y" in bundle:
+            return bundle["X"], bundle["y"]
+    return None
+
+
+def _load_df_pickles(data_dir):
+    xs, ys = [], []
+    for part in ("train", "valid", "test"):
+        x_files = list(data_dir.glob(f"X_{part}*.pkl"))
+        y_files = list(data_dir.glob(f"y_{part}*.pkl"))
+        if x_files and y_files:
+            xs.append(np.array(_unpickle(x_files[0])))
+            ys.append(np.array(_unpickle(y_files[0])))
+    if not xs:
+        return None
+    return np.concatenate(xs), np.concatenate(ys)
+
+
 def load_real(data_dir=DATA_DIR):
     data_dir = Path(data_dir)
-    x_npy, y_npy = data_dir / "X.npy", data_dir / "y.npy"
+    raw = _load_npy(data_dir) or _load_npz(data_dir) or _load_df_pickles(data_dir)
+    if raw is None:
+        return None
 
-    if x_npy.exists() and y_npy.exists():
-        X = np.load(x_npy, allow_pickle=True)
-        y = np.load(y_npy, allow_pickle=True)
-    else:
-        npz_files = list(data_dir.glob("*.npz"))
-        if not npz_files:
-            return None
-        bundle = np.load(npz_files[0], allow_pickle=True)
-        if "X" not in bundle or "y" not in bundle:
-            return None
-        X, y = bundle["X"], bundle["y"]
-
+    X, y = raw
     traces = [_clean(row) for row in X]
-    labels = [str(label) for label in y]
+    labels = [_label(label) for label in y]
     return traces, labels
 
 

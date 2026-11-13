@@ -15,7 +15,8 @@ def train():
     X = extract_batch(traces)
     X_train, X_test, y_train, y_test = split(X, labels)
 
-    clf = RandomForestClassifier(n_estimators=200, random_state=SEED, n_jobs=-1)
+    clf = RandomForestClassifier(
+        n_estimators=150, min_samples_leaf=5, random_state=SEED, n_jobs=-1)
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
 
@@ -40,6 +41,7 @@ def train():
     joblib.dump(
         {"model": clf, "sites": sorted(set(labels)), "feature_names": FEATURE_NAMES},
         MODEL_PATH,
+        compress=3,
     )
     print(f"\nsaved model -> {MODEL_PATH}")
     print(f"saved metrics -> {RESULTS_DIR}")

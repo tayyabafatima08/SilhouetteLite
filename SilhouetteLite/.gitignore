@@ -6,8 +6,8 @@ webapp/uploads/*
 !webapp/uploads/.gitkeep
 __pycache__/
 *.pyc
-.venv/
 venv/
 *.pkl
 *.joblib
 .DS_Store
+.venv*/
