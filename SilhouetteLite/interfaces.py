@@ -1,10 +1,14 @@
+from attack.model.predict import predict as _predict
+from defense.padding.apply_padding import apply_padding as _apply_padding
+
+
 def predict(trace):
     """
     trace: list[int]  (sequence of +1/-1 values, Tor cell direction)
     returns: {"site": str, "confidence": float}
-    STUB — Person 1 implements this in attack/model/predict.py
     """
-    raise NotImplementedError
+    return _predict(trace)
+
 
 def apply_padding(trace, strength):
     """
@@ -12,4 +16,4 @@ def apply_padding(trace, strength):
     strength: "light" | "medium" | "heavy"
     returns: list[int]  (padded trace)
     """
-    raise NotImplementedError
+    return _apply_padding(trace, strength)
