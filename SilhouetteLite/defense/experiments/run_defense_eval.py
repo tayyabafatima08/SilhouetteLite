@@ -8,7 +8,7 @@ from attack.model.predict import predict
 from defense.padding.apply_padding import apply_padding, padding_overhead
 
 
-def evaluate_defense(num_samples=50):
+def evaluate_defense(num_samples=200):
     traces, labels, _ = load_dataset()
 
     results = {"none": {"correct": 0, "total": 0, "overhead": 0.0}}
@@ -46,4 +46,4 @@ def evaluate_defense(num_samples=50):
 
 
 if __name__ == "__main__":
-    evaluate_defense()
+    evaluate_defense(num_samples=200)
